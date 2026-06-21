@@ -32,6 +32,12 @@ jobs:
         run: |
           playwright install --with-deps chromium
 
+      - name: Install Allure CLI
+        run: |
+          sudo apt-add-repository ppa:qameta/allure -y
+          sudo apt-get update
+          sudo apt-get install -y allure
+
       - name: Run AI self healing tests
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
