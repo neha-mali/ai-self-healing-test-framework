@@ -92,3 +92,25 @@ if __name__ == "__main__":
             test_name="OrangeHRM Login",
             url="https://opensource-demo.orangehrmlive.com",
             passed=True,
+            actual_result="DONE: dashboard loaded successfully",
+            screenshot_path=""
+        ),
+        TestResult(
+            test_name="OrangeHRM Login with wrong password",
+            url="https://opensource-demo.orangehrmlive.com",
+            passed=True,
+            actual_result="DONE: error message correctly shown",
+            screenshot_path=""
+        ),
+        TestResult(
+            test_name="OrangeHRM Healed Selector Example",
+            url="https://opensource-demo.orangehrmlive.com",
+            passed=True,
+            actual_result="DONE: dashboard loaded after healing",
+            screenshot_path="",
+            is_healed=True,
+            healed_selector="click [ref=e32] → click [ref=e45]"
+        )
+    ]
+
+    generate_allure_report(fake_results)
