@@ -4,15 +4,19 @@ import os
 import json
 import uuid
 import time
+import shutil
 import subprocess
 from models.test_result import TestResult
 
 
 ALLURE_RESULTS_DIR = "allure-results"
+ALLURE_REPORT_DIR = "allure-report"
 
 
 def generate_allure_report(results: list[TestResult]):
-    # make sure the results folder exists
+    # clear out old results before writing new ones
+    if os.path.exists(ALLURE_RESULTS_DIR):
+        shutil.rmtree(ALLURE_RESULTS_DIR)
     os.makedirs(ALLURE_RESULTS_DIR, exist_ok=True)
 
     for result in results:
@@ -20,15 +24,21 @@ def generate_allure_report(results: list[TestResult]):
 
     print(f"\n📊 Wrote {len(results)} result(s) to {ALLURE_RESULTS_DIR}/")
 
-    # ask the allure CLI to generate and open the html report
+    # ask the allure CLI to generate the html report
     print("Generating Allure report...")
     subprocess.run([
         "allure", "generate", ALLURE_RESULTS_DIR,
-        "--clean", "-o", "allure-report"
+        "--clean", "-o", ALLURE_REPORT_DIR
     ])
 
-    print("Opening report in browser...")
-    subprocess.run(["allure", "open", "allure-report"])
+    # only open the report automatically when running locally,
+    # not in CI where there's no browser/display available
+    if not os.getenv("CI"):
+        print("Opening report in browser...")
+        subprocess.run(["allure", "open", ALLURE_REPORT_DIR])
+    else:
+        print("Running in CI — skipping browser open, "
+              "report will be uploaded as an artifact instead.")
 
 
 def write_allure_result(result: TestResult):
@@ -82,58 +92,3 @@ if __name__ == "__main__":
             test_name="OrangeHRM Login",
             url="https://opensource-demo.orangehrmlive.com",
             passed=True,
-            actual_result="DONE: dashboard loaded successfully",
-            screenshot_path=""
-        ),
-        TestResult(
-            test_name="OrangeHRM Login with wrong password",
-            url="https://opensource-demo.orangehrmlive.com",
-            passed=True,
-            actual_result="DONE: error message correctly shown",
-            screenshot_path=""
-        ),
-        TestResult(
-            test_name="OrangeHRM Healed Selector Example",
-            url="https://opensource-demo.orangehrmlive.com",
-            passed=True,
-            actual_result="DONE: dashboard loaded after healing",
-            screenshot_path="",
-            is_healed=True,
-            healed_selector="click [ref=e32] → click [ref=e45]"
-        )
-    ]
-
-    generate_allure_report(fake_results)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Takes: list of TestResult objects
-#         ↓
-# Formats each one properly
-#         ↓
-# Generates an Allure-compatible report
-#         ↓
-# Opens the report in your browser automatically
-
-
-# Step 1: Your code writes JSON result files
-#         into an "allure-results" folder
-#         (one JSON file per test)
-#
-# Step 2: A separate command-line tool called
-#         "allure" reads that folder and
-#         generates the final HTML report
-#
-# Step 3: "allure serve" or "allure generate"
-#         opens it in your browser
