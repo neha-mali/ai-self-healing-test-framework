@@ -33,10 +33,11 @@ jobs:
           playwright install --with-deps chromium
 
       - name: Install Allure CLI
-        run: |
-          sudo apt-add-repository ppa:qameta/allure -y
-          sudo apt-get update
-          sudo apt-get install -y allure
+          run: |
+            curl -o allure.zip -L https://github.com/allure-framework/allure2/releases/download/2.34.0/allure-2.34.0.zip
+            unzip -q allure.zip
+            sudo mv allure-2.34.0 /opt/allure
+            sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
 
       - name: Run AI self healing tests
         env:
